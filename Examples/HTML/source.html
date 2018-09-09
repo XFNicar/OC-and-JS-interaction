@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head> <meta charset="UTF-8"> </head>
+<body>
+<div style="margin-top: 20px"> <h2>OC与JS交互演示</h2> </div>
+<div> <input type="button" value="UIWebView 调用 Native" onclick="UIWebViewSendMsgToApp()"> </div>
+<div> <button name = "WKWebviewBtn" id = "WKWebviewBtn" onclick="WKWebViewSendMsgToApp()"> WKWebView 调用 Native </button> </div>
+<p id="pppppp">弄啥咧</p>
+<script>
+    
+var UIWebViewSendMsgToApp = function() {
+        // 参数统一使用JSON字符串
+    var productInfo = JSON.stringify({"skuId":"432431342"});
+        // 如果你使用的是UIWebView，
+        // 那么JS调用iOS代码时，
+        // 请务必使用对象"iOS_NativeModel"调用
+        // (该对象需要在JS对象创建之后注册到WebView的JSContext，至少也应该在HTML5调用之前注册)
+        // showProductInfo为跳转商品详情函数名
+    iOS_NativeModel.sendMsgToApp(productInfo);
+}
+
+var WKWebViewSendMsgToApp = function() {
+    var productInfo = JSON.stringify({"skuId":"432431342"});
+    // web调用iOS代码时，
+    window.webkit.messageHandlers.sendMsgToApp.postMessage(productInfo);
+}
+
+// HTML5 公开应该一个（通用）的方法接收来自APP的传参
+var receiveMsgFromApp = function(params) {
+    alert(params);
+}
+
+var sendMessageToWebView = function(params) {
+    document.getElementById('pppppp').innerHTML = "你回答错了，嘣！嘣！";
+    alert(params);
+}
+
+</script>
+</body>
+</html>
