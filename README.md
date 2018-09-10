@@ -130,3 +130,88 @@
 	```
 		
 ### 用 UIWebView 实现 OC 与 JS 交互
+
+* 准备工作
+	
+	自然是创建**UIWebView**并设置代理了
+	
+		self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 20, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    	self.webView.delegate = self;
+    	NSString* path = [[NSBundle mainBundle] pathForResource:@"source" ofType:@"html"];
+    	NSURL* url = [NSURL fileURLWithPath:path];
+    	NSURLRequest* request = [NSURLRequest requestWithURL:url] ;
+    	[self.webView loadRequest:request];
+    	[self.view addSubview:self.webView];
+
+* 遵守协议
+	
+	在该协议中，定义供JS调用的方法，建议设置为一个通用接口，方便JS调用
+	
+		#import <JavaScriptCore/JavaScriptCore.h>
+		
+		@protocol JSObjcDelegate <JSExport>
+
+		/**
+ 		前端调用Native
+ 		此API用来供前端（H5）调用，
+ 		为了方便制定调用的协议，
+ 		此API应该设计成通用API，
+ 		其中所涉及的场景应该由参数来决定，
+ 		不应设计过多的API
+ 		同理前端也应该只需设计一个API供Native调用
+ 
+ 		@param param 调用参数
+ 		*/
+		- (void)sendMsgToApp:(NSString *)param;
+		
+		@end
+
+		@interface UIWebViewController : UIViewController<UIWebViewDelegate,JSObjcDelegate>
+
+		@property (nonatomic, strong) JSContext *jsContext;
+		@property (strong, nonatomic)  UIWebView *webView;
+
+		@end
+	
+* 实现协议方法，并向JSContext注册对象
+
+	所谓注册对象，就是告诉JS该调用谁的什么方法,总体来说也就是以下三行代码，只不过根据每个公司前端所写的业务不同，注入时机可能会有所区别，正常来说都是WebView通知Native在合适的时机注入即可，其中的区别我[写在这里]()了。
+	
+		#pragma mark - UIWebViewDelegate
+
+		- (void)webViewDidStartLoad:(UIWebView *)webView {
+    		self.jsContext = [webView valueForKeyPath:@"documentView.webView.mainFrame.javaScriptContext"];
+    		// 将JS中的iOS_NativeModel对象（JS中定义为什么名称就是什么名称）设置为当前控制器，JS才可以调用当前控制器所遵守协议中的方法
+   			self.jsContext[@"iOS_NativeModel"] = self;
+    		self.jsContext.exceptionHandler = ^(JSContext *context, JSValue *exceptionValue) {
+        	context.exception = exceptionValue;
+        		NSLog(@"异常信息：%@", exceptionValue);
+    		};
+		}
+		
+* JS 调用 Native
+
+	这里就是在WebView所在的控制器实现之前的协议中的方法即可，JS调用协议中的方法就会来到方法的具体实现，PS：JS所传值为字符串，需要根据相关业务参数看是否需要转化为JSON或其他对象
+	
+		#pragma mark - JSObjcDelegate 
+		// 为保证交互结果的安全可控
+		// 在native中执行的相关代码务必放在主线程中执行
+		- (void)sendMsgToApp:(NSString *)param {
+    		dispatch_async(dispatch_get_main_queue(), ^{
+        		NSLog(@"param:%@",param);
+    		});
+		}
+	
+* OC 调用 JS
+
+	这里比**WKWebView**稍微复杂一些，但是基本原理是一样的，**UIWebView**这里使用**JSValue**对象来实现，设置所调用的JS函数与参数与**WKWebView**是一样的。
+
+		#pragma mark - Public
+		// 通过 JSValue 对象发送消息给 WEB 页面
+		- (void)sendMessageToWebView:(UIBarButtonItem *)sender {
+    		JSValue *jsObject = self.jsContext[@"receiveMsgFromApp"];
+    		NSString *param = [NSString stringWithFormat:@"%@\n%@\n%@\n详细信息：%@",@"商品获取成功",@"商品名称:哈哈",@"商品ID：123456",@"这是商品信息"];
+    		NSString *callBackStr = [NSString stringWithFormat:@"receiveMsgFromApp(%@)", param ];
+    		[jsObject callWithArguments:@[callBackStr]];
+		}
+	

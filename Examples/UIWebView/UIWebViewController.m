@@ -28,8 +28,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"调用JS" style:UIBarButtonItemStylePlain target:self action:@selector(sendMessageToWebView:)];
-    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 20, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-    self.webView.delegate = self;
     NSString* path = [[NSBundle mainBundle] pathForResource:@"source" ofType:@"html"];
     NSURL* url = [NSURL fileURLWithPath:path];
     NSURLRequest* request = [NSURLRequest requestWithURL:url] ;
@@ -80,6 +78,13 @@
 }
 
 #pragma mark - Getter
+- (UIWebView *)webView {
+    if (_webView == nil) {
+        _webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 20, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+        _webView.delegate = self;
+    }
+    return _webView;
+}
 
 #pragma mark - Setter
 
