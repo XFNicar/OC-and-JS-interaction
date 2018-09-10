@@ -77,6 +77,7 @@ WKScriptMessageHandler
 
 #pragma mark - WKNavigationDelegate
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    
 }
 
 
@@ -153,7 +154,6 @@ WKScriptMessageHandler
         _webView.navigationDelegate = self;
         _webView.frame = self.view.bounds;
         [config.userContentController addScriptMessageHandler:self name:@"sendMsgToApp"];
-        //        [config.userContentController addScriptMessageHandler:self name:@"collectIsLogin"];
     }
     return _webView;
 }
