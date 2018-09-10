@@ -21,7 +21,7 @@
 	* 1 **引入 WebKit 框架**
 		
 		```	
-	#import <WebKit/WebKit.h>
+		#import <WebKit/WebKit.h>
 
 		@interface WKWebViewController ()
 		<
@@ -37,36 +37,38 @@
 	* 2 **创建 WKWebView 添加供JS调用的方法名**
 
 			
-		```
-	#pragma mark - Getter
-	- (WKWebView *)webView {
-    	if (_webView == nil) {
-        	WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
-        	config.preferences = [[WKPreferences alloc] init];
-        	config.preferences.minimumFontSize = 10;
-        	config.preferences.javaScriptEnabled = YES;
-        	config.preferences.javaScriptCanOpenWindowsAutomatically = NO;
-        	config.userContentController = [[WKUserContentController alloc] init];
-        	config.processPool = [[WKProcessPool alloc] init];
-        	_webView = [[WKWebView alloc] initWithFrame:self.view.frame configuration:config];
-        	_webView.UIDelegate = self;
-        	_webView.navigationDelegate = self;
-        	_webView.frame = self.view.bounds;
-        	[config.userContentController addScriptMessageHandler:self name:@"sendMsgToApp"];
-    	}
-    	return _webView;
-	}
+			```
+			#pragma mark - Getter
+			- (WKWebView *)webView {
+    			if (_webView == nil) {
+        			WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+        			config.preferences = [[WKPreferences alloc] init];
+        			config.preferences.minimumFontSize = 10;
+        			config.preferences.javaScriptEnabled = YES;
+        			config.preferences.javaScriptCanOpenWindowsAutomatically = NO;
+        			config.userContentController = [[WKUserContentController alloc] init];
+        			config.processPool = [[WKProcessPool alloc] init];
+        			_webView = [[WKWebView alloc] initWithFrame:self.view.frame configuration:config];
+        			_webView.UIDelegate = self;
+        			_webView.navigationDelegate = self;
+        			_webView.frame = self.view.bounds;
+        			[config.userContentController addScriptMessageHandler:self name:@"sendMsgToApp"];
+    			}
+    			return _webView;
+			}
 		
 		```
 
-	   - 这里需要介绍一下 **WKWebViewConfiguration**， 不做深入了解的话可以跳过直接看代码 
+
+	  - 这里需要介绍一下 **WKWebViewConfiguration**， 不做深入了解的话可以跳过直接看代码 
 		
-			**WKWebView** 初始化时，有一个参数叫**configuration**，它是**WKWebViewConfiguration**类型的参数，而**WKWebViewConfiguration**有一个属性叫**userContentController**，它又是**WKUserContentController**类型的参数。**WKUserContentController**对象有一个方法**- addScriptMessageHandler:name:**，我把这个功能简称为**MessageHandler**。
+		**WKWebView** 初始化时，有一个参数叫**configuration**，它是**WKWebViewConfiguration**类型的参数，而**WKWebViewConfiguration**有一个属性叫**userContentController**，它又是**WKUserContentController**类型的参数。**WKUserContentController**对象有一个方法**- addScriptMessageHandler:name:**，我把这个功能简称为**MessageHandler**。
 添加**MessageHandler**其实就是添加供**WKWebView** 中 **JS** 调用的对象（**heandle**）和方法名(**name**)。
 
 	* 3 **实现协议方法 （JS 调用 OC）**
 		
 		当我们注册了**userContentController**之后，JS 调用iOS原生就会走这个代理，并且会返回**WKScriptMessage**对象**message**，其中**WKScriptMessage**对象的两个属性是我们所需要的，**message.name** 是我们给JS添加的方法名，**message.body** 则是JS给我们发送的参数值，通常我们只需要注册一个方法名，业务逻辑的区分放到body里面来处理，这样可以方便前端与Native制定新的交互规则的时候，不需要维护新的公共API。
+
 		
 		```
 		#pragma mark - WKScriptMessageHandler
@@ -106,6 +108,8 @@
 	}
 	
 		```
+
+
 	* 4 **OC 调用 JS**
 
 		这里的代码非常简单，相关的调用只有一行代码: **- evaluateJavaScript:jsStr completionHandler:**
