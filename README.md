@@ -82,7 +82,7 @@
  	@param message ：
                 message.name (方法名)
                 message.body (参数)
- */
+ 	*/
 	- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
 		if ([message.name isEqualToString:@"sendMsgToApp"]) { 
         	[self sendMsgToApp:message];
