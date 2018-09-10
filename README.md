@@ -1,5 +1,5 @@
 
-# OC-and-JS-interaction
+# OC-And-JS-Interaction
 相关示例源码[在这里](https://github.com/XFNicar/OC-and-JS-interaction)
 
 ## 为什么需要交互
@@ -10,9 +10,10 @@
 
 ### 用WKWebView 实现 OC与JS交互
 
-* 准备工作
-	* 
-1 **引入 WebKit 框架**
+* **准备工作**
+	
+	* 1 引入 WebKit 框架
+	
 ```
 #import <WebKit/WebKit.h>
 @interface WKWebViewController ()
@@ -26,7 +27,8 @@ WKScriptMessageHandler	// JS 调用原生需要实现的相关协议
 
 ```
 
-* 2 **创建 WKWebView 添加供JS调用的方法名**
+	* 2 创建 WKWebView 添加供JS调用的方法名
+
 ```
 #pragma mark - Getter
 - (WKWebView *)webView {
@@ -49,14 +51,13 @@ WKScriptMessageHandler	// JS 调用原生需要实现的相关协议
 ```
 
 
-	* 这里需要介绍一下 **WKWebViewConfiguration**，不做深入了解的话可以跳过直接看代码 
+	* 3  这里需要介绍一下 **WKWebViewConfiguration**，不做深入了解的话可以跳过直接看代码 
 
 	**WKWebView** 初始化时，有一个参数叫**configuration**，它是**WKWebViewConfiguration**类型的参数，而**WKWebViewConfiguration**有一个属性叫**userContentController**，它又是**WKUserContentController**类型的参数。**WKUserContentController**对象有一个方法**- addScriptMessageHandler:name:**，我把这个功能简称为**MessageHandler**。添加**MessageHandler**其实就是添加供**WKWebView** 中 **JS** 调用的对象（**heandle**）和方法名(**name**)。
 
-* 交互逻辑之 JS 调用 OC
+* **交互逻辑之 JS 调用 OC**
 
 当我们注册了**userContentController**之后，JS 调用iOS原生就会走这个代理，并且会返回**WKScriptMessage**对象**message**，其中**WKScriptMessage**对象的两个属性是我们所需要的，**message.name** 是我们给JS添加的方法名，**message.body** 则是JS给我们发送的参数值，通常我们只需要注册一个方法名，业务逻辑的区分放到body里面来处理，这样可以方便前端与Native制定新的交互规则的时候，不需要维护新的公共API。
-
 
 ```
 #pragma mark - WKScriptMessageHandler
@@ -95,7 +96,7 @@ WKScriptMessageHandler	// JS 调用原生需要实现的相关协议
 ```
 
 
-* 交互逻辑之 OC 调用 JS
+* **交互逻辑之 OC 调用 JS**
 
 这里的代码非常简单，相关的调用只有一行代码: **- evaluateJavaScript:jsStr completionHandler:**
 其中**sendMessageToWebView()**是**WebView**公开给Native调用的公共接口，相关的参数转成字符串放到括号内即可，同样的，前端只需要公开一个API，相关的业务逻辑放到参数里面处理就可以了，也是为了减少维护公共API的成本。
@@ -133,6 +134,7 @@ NSURLRequest* request = [NSURLRequest requestWithURL:url] ;
 * 遵守协议
 
 在该协议中，定义供JS调用的方法，建议设置为一个通用接口，方便JS调用
+
 ```
 #import <JavaScriptCore/JavaScriptCore.h>
 @protocol JSObjcDelegate <JSExport>
@@ -160,7 +162,6 @@ NSURLRequest* request = [NSURLRequest requestWithURL:url] ;
 ```
 
 * 实现协议方法，并向JSContext注册对象
-
 
 所谓注册对象，就是告诉JS该调用谁的什么方法,总体来说也就是以下三行代码，只不过根据每个公司前端所写的业务不同，注入时机可能会有所区别，正常来说都是WebView通知Native在合适的时机注入即可，其中的区别我[写在这里]()了。
 ```
