@@ -58,7 +58,7 @@
 		}
 ```
 
-	* 这里需要介绍一下 **WKWebViewConfiguration**，不做深入了解的话可以跳过直接看代码 
+* 这里需要介绍一下 **WKWebViewConfiguration**，不做深入了解的话可以跳过直接看代码 
 		
 	**WKWebView** 初始化时，有一个参数叫**configuration**，它是**WKWebViewConfiguration**类型的参数，而**WKWebViewConfiguration**有一个属性叫**userContentController**，它又是**WKUserContentController**类型的参数。**WKUserContentController**对象有一个方法**- addScriptMessageHandler:name:**，我把这个功能简称为**MessageHandler**。
 添加**MessageHandler**其实就是添加供**WKWebView** 中 **JS** 调用的对象（**heandle**）和方法名(**name**)。
