@@ -12,7 +12,7 @@
 
 * **准备工作**
 	
-	* 1 引入 WebKit 框架
+	- 1 引入 WebKit 框架
 	
 ```
 #import <WebKit/WebKit.h>
@@ -27,7 +27,7 @@ WKScriptMessageHandler	// JS 调用原生需要实现的相关协议
 
 ```
 
-	* 2 创建 WKWebView 添加供JS调用的方法名
+	- 2 创建 WKWebView 添加供JS调用的方法名
 
 ```
 #pragma mark - Getter
@@ -51,7 +51,7 @@ WKScriptMessageHandler	// JS 调用原生需要实现的相关协议
 ```
 
 
-	* 3  这里需要介绍一下 **WKWebViewConfiguration**，不做深入了解的话可以跳过直接看代码 
+	- 3  这里需要介绍一下 **WKWebViewConfiguration**，不做深入了解的话可以跳过直接看代码 
 
 	**WKWebView** 初始化时，有一个参数叫**configuration**，它是**WKWebViewConfiguration**类型的参数，而**WKWebViewConfiguration**有一个属性叫**userContentController**，它又是**WKUserContentController**类型的参数。**WKUserContentController**对象有一个方法**- addScriptMessageHandler:name:**，我把这个功能简称为**MessageHandler**。添加**MessageHandler**其实就是添加供**WKWebView** 中 **JS** 调用的对象（**heandle**）和方法名(**name**)。
 
@@ -95,25 +95,23 @@ WKScriptMessageHandler	// JS 调用原生需要实现的相关协议
 }
 ```
 
-
 * **交互逻辑之 OC 调用 JS**
 
-这里的代码非常简单，相关的调用只有一行代码: **- evaluateJavaScript:jsStr completionHandler:**
+	这里的代码非常简单，相关的调用只有一行代码: **- evaluateJavaScript:jsStr completionHandler:**
 其中**sendMessageToWebView()**是**WebView**公开给Native调用的公共接口，相关的参数转成字符串放到括号内即可，同样的，前端只需要公开一个API，相关的业务逻辑放到参数里面处理就可以了，也是为了减少维护公共API的成本。
 
 ```
-// Native 调用 JS
-- (void)sendMessageToWebView:(UIBarButtonItem *)sender {
- 	NSString *msg = [NSString stringWithFormat:@"我只是一只小兔几，我什么都不知道。"];
-	NSString * result = [self noWhiteSpaceString:msg];
-	// sendMessageToWebView
-	NSString * jsStr = [NSString stringWithFormat:@"sendMessageToWebView(\"%@\")",result];
-	[self.webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-    NSLog(@"交互错误value :%@ error: %@",result,error);
-	}];
-}
+	// Native 调用 JS
+	- (void)sendMessageToWebView:(UIBarButtonItem *)sender {
+ 		NSString *msg = [NSString stringWithFormat:@"我只是一只小兔几，我什么都不知道。"];
+		NSString * result = [self noWhiteSpaceString:msg];
+		// sendMessageToWebView
+		NSString * jsStr = [NSString stringWithFormat:@"sendMessageToWebView(\"%@\")",result];
+		[self.webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+    		NSLog(@"交互错误value :%@ error: %@",result,error);
+		}];
+	}
 ```
-
 
 ### 用 UIWebView 实现 OC 与 JS 交互
 
@@ -164,6 +162,7 @@ NSURLRequest* request = [NSURLRequest requestWithURL:url] ;
 * 实现协议方法，并向JSContext注册对象
 
 所谓注册对象，就是告诉JS该调用谁的什么方法,总体来说也就是以下三行代码，只不过根据每个公司前端所写的业务不同，注入时机可能会有所区别，正常来说都是WebView通知Native在合适的时机注入即可，其中的区别我[写在这里]()了。
+
 ```
 #pragma mark - UIWebViewDelegate
 - (void)webViewDidStartLoad:(UIWebView *)webView {
@@ -178,7 +177,6 @@ NSURLRequest* request = [NSURLRequest requestWithURL:url] ;
 ```
 
 * JS 调用 Native
-
 
 这里就是在WebView所在的控制器实现之前的协议中的方法即可，JS调用协议中的方法就会来到方法的具体实现，PS：JS所传值为字符串，需要根据相关业务参数看是否需要转化为JSON或其他对象
 
