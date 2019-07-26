@@ -118,15 +118,14 @@
   // Native 调用 JS
   - (void)sendMessageToWebView:(UIBarButtonItem *)sender {
   
-  
-   		NSString *msg = [NSString stringWithFormat:@"我只是一只小兔几，我什么都不知道。"];
-  		NSString * result = [self noWhiteSpaceString:msg];
+   	NSString *msg = [NSString stringWithFormat:@"我只是一只小兔几，我什么都不知道。"];
+  	NSString * result = [self noWhiteSpaceString:msg];
   		// sendMessageToWebView
-  		NSString * jsStr = [NSString stringWithFormat:@"sendMessageToWebView(\"%@\")",result];
-  		[self.webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+  	NSString * jsStr = [NSString stringWithFormat:@"sendMessageToWebView(\"%@\")",result];
+  	[self.webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
       		NSLog(@"交互错误value :%@ error: %@",result,error);
-  		}];
-  	}
+  	}];
+  }
   ```
 
   
@@ -232,7 +231,7 @@
     NSString *param = [NSString stringWithFormat:@"%@\n%@\n%@\n详细信息：%@",@"商品获取成功",@"商品名称:哈哈",@"商品ID：123456",@"这是商品信息"];
     NSString *callBackStr = [NSString stringWithFormat:@"receiveMsgFromApp(%@)", param ];
     [jsObject callWithArguments:@[callBackStr]];
-    }
+  }
   ```
 
   
